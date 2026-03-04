@@ -1,7 +1,7 @@
 import cv2                       # cv - Open Source Computer Vision, allows us to control the camera
 import os                        # os - operating system, allows to create files and folders on computer
 
-from modules.Pixel_Detection import find_red_pixels, find_closest_pixel_to_centre, create_annotated_image, create_diagnostic_image
+from modules.Pixel_Detection import find_red_pixels, find_closest_pixel_to_centre, create_diagnostic_image
 
 def initialise_camera(index=0):                     # This function turns on the camera when called
     webcam = cv2.VideoCapture(index, cv2.CAP_DSHOW)

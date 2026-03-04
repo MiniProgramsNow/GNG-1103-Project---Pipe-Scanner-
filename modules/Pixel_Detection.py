@@ -75,31 +75,6 @@ def find_closest_pixel_to_centre(image, red_pixels):
 
     return closest_pixel, offset, centre_x
 
-def create_annotated_image(image, closest_pixel, offset, centre_x):
-    """
-    Draws the centre line, highlights the detected pixel
-    and shows the offset distance on the original image
-    """
-    # make a copy so we don't modify the original
-    annotated = image.copy()
-
-    image_height, image_width = image.shape[:2]
-
-    # draw green centre line
-    cv2.line(annotated, (centre_x, 0), (centre_x, image_height), (0, 255, 0), 2)
-
-    if closest_pixel is not None:
-        x, y = closest_pixel
-        # draw red circle around detected pixel
-        cv2.circle(annotated, (x, y), 20, (0, 0, 255), 2)
-        # draw blue line showing offset distance
-        cv2.line(annotated, (centre_x, y), (x, y), (255, 0, 0), 2)
-        # draw offset text
-        cv2.putText(annotated, f"Offset: {offset}px", (10, 30),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 0), 2)
-
-    return annotated
-
 
 def create_diagnostic_image(image, mask, closest_pixel, offset, centre_x):
     """
