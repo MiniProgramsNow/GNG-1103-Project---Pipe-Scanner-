@@ -47,11 +47,11 @@ def main():                                      # This is our main function whe
     "exist_ok=True" input ensures this function only runs if the "output" file doesn't already exist
     "os.makedirs" creates output folder for images with the name "output" with "raw" folder inside
     """
-    print("Pipe Scanner - Starting up...")
+    print("Starting up...")
     print("Camera initialising...")
 
     """
-    webcam = initialise_camera(index=0)          # Starts camera
+    webcam = initialise_camera(index=0)         # Starts camera
     if webcam is None:
         return
 
@@ -60,7 +60,7 @@ def main():                                      # This is our main function whe
     """
 
     # load test image
-    image_path = os.path.join(OUTPUT_FOLDER, "raw", "image_0001.png")
+    image_path = os.path.join(OUTPUT_FOLDER, "raw", "image_0005.png")
     image = cv2.imread(image_path)
 
     if image is None:
@@ -79,7 +79,7 @@ def main():                                      # This is our main function whe
 
     # create and save diagnostic image
     diagnostic = create_diagnostic_image(image, mask, closest_pixel, offset, centre_x)
-    cv2.imwrite(os.path.join(OUTPUT_FOLDER, "diagnostic", "image_0001_diagnostic.png"), diagnostic)
+    cv2.imwrite(os.path.join(OUTPUT_FOLDER, "diagnostic", "image_0005_diagnostic.png"), diagnostic)
     print("Diagnostic image saved")
 
 if __name__ == "__main__":  # This line just runs the code

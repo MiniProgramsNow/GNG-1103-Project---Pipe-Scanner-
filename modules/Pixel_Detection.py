@@ -65,7 +65,7 @@ def find_closest_pixel_to_centre(image, red_pixels):
         distance = abs(x - centre_x)         # horizontal distance to centre line
         if distance < smallest_distance:
             smallest_distance = distance
-            closest_pixel = (x, y)
+            closest_pixel = int(x), int(y)
 
     # offset is positive if right of centre, negative if left of centre
     if closest_pixel is not None:
