@@ -60,7 +60,7 @@ def main():                                      # This is our main function whe
     """
 
     # load test image
-    image_path = os.path.join(OUTPUT_FOLDER, "raw", "image_0004.png")
+    image_path = os.path.join(OUTPUT_FOLDER, "raw", "image_0001.png")
     image = cv2.imread(image_path)
 
     if image is None:
@@ -79,7 +79,7 @@ def main():                                      # This is our main function whe
 
     # create and save diagnostic image
     diagnostic = create_diagnostic_image(image, mask, closest_pixel, offset, centre_x)
-    cv2.imwrite(os.path.join(OUTPUT_FOLDER, "diagnostic", "image_0004_diagnostic.png"), diagnostic)
+    cv2.imwrite(os.path.join(OUTPUT_FOLDER, "diagnostic", "image_0001_diagnostic.png"), diagnostic)
     print("Diagnostic image saved")
 
 if __name__ == "__main__":  # This line just runs the code

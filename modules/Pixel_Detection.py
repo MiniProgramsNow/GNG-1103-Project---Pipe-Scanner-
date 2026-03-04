@@ -69,7 +69,7 @@ def find_closest_pixel_to_centre(image, red_pixels):
 
     # offset is positive if right of centre, negative if left of centre
     if closest_pixel is not None:
-        offset = closest_pixel[0] - centre_x
+        offset = abs(closest_pixel[0] - centre_x)
     else:
         offset = None
 
