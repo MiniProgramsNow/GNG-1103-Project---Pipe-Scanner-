@@ -1,7 +1,7 @@
 import cv2                       # cv - Open Source Computer Vision, allows us to control the camera
 import os                        # os - operating system, allows to create files and folders on computer
 
-from modules.Pixel_Detection import find_red_pixels, find_closest_pixel_to_centre, create_diagnostic_image
+from modules.Pixel_Detection import *       # * - imports all functions from the module
 
 def initialise_camera(index=0):                     # This function turns on the camera when called
     webcam = cv2.VideoCapture(index, cv2.CAP_DSHOW)
@@ -50,17 +50,15 @@ def main():                                      # This is our main function whe
     print("Starting up...")
     print("Camera initialising...")
 
-    """
     webcam = initialise_camera(index=0)         # Starts camera
     if webcam is None:
         return
 
     capture_image(webcam, 2)                    # Capture image
     release_camera(webcam)                      # Turns off camera
-    """
 
     # load test image
-    image_path = os.path.join(OUTPUT_FOLDER, "raw", "image_0005.png")
+    image_path = os.path.join(OUTPUT_FOLDER, "raw", "image_0001.png")
     image = cv2.imread(image_path)
 
     if image is None:
@@ -79,7 +77,7 @@ def main():                                      # This is our main function whe
 
     # create and save diagnostic image
     diagnostic = create_diagnostic_image(image, mask, closest_pixel, offset, centre_x)
-    cv2.imwrite(os.path.join(OUTPUT_FOLDER, "diagnostic", "image_0005_diagnostic.png"), diagnostic)
+    cv2.imwrite(os.path.join(OUTPUT_FOLDER, "diagnostic", "image_0001_diagnostic.png"), diagnostic)
     print("Diagnostic image saved")
 
 if __name__ == "__main__":  # This line just runs the code

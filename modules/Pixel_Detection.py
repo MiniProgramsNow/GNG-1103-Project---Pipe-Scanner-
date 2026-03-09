@@ -101,3 +101,4 @@ def create_diagnostic_image(image, mask, closest_pixel, offset, centre_x):
                     cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2)
 
     return diagnostic
+
