@@ -33,7 +33,7 @@ def capture_image(webcam, image_number):              # This function captures t
         return None
 
     filename = f"image_{image_number:04d}.png"        # creates a file for the captured image
-    filepath = os.path.join(OUTPUT_FOLDER, filename)  # specifies where to put image file
+    filepath = os.path.join(OUTPUT_FOLDER, "raw", filename)  # specifies where to put image file
     cv2.imwrite(filepath, frame)                      # sends the image data stored in variable "frame" to file in output/raw
 
     print(f"Image saved: {filepath}")                 # notifies user that image was saved, and where it was saved
@@ -54,7 +54,7 @@ def main():                                      # This is our main function whe
     if webcam is None:
         return
 
-    capture_image(webcam, 2)                    # Capture image
+    capture_image(webcam, 1)                    # Capture image
     release_camera(webcam)                      # Turns off camera
 
     # load test image
