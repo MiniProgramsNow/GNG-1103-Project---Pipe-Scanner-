@@ -1,61 +1,30 @@
-import cv2                       # cv - Open Source Computer Vision, allows us to control the camera
-import os                        # os - operating system, allows to create files and folders on computer
+import cv2
+import os
+import time
+import numpy as np
 
-from modules.Pixel_Detection import *       # * - imports all functions from the module
+from modules.Pixel_Detection import *
+from modules.Serial_Com import *
+from modules.Cam_Control import *
 
-def initialise_camera(index=0):                     # This function turns on the camera when called
-    webcam = cv2.VideoCapture(index, cv2.CAP_DSHOW)
-    """
-    "Video.Capture" tells us which camera to use, by default webcam is "0", try 1 or -1 for external webcams
-    "cv2.CAP_DSHOW" is the video capture backend for windows try, "cv2.CAP_ANY" for different OS
-    """
-    if not webcam.isOpened():                       # Checks if the webcam actually opened
-        print("Error: Could not open camera")       # If webcam did not open tell user
-        return None
+PORT = "COM5"
+BAUD = 9600
 
-    print("Camera ready!")              # If webcam did open tell user
-    return webcam
 
-def release_camera(webcam):             # This function deactivates the camera when called
-    webcam.release()                    # The "release" function turns off the camera
-    print("Camera released")            # Tells user camera us no longer in use
-
-OUTPUT_FOLDER = "output"
-def capture_image(webcam, image_number):              # This function captures the image when called, webcam must be initialized first
-    ret, frame = webcam.read()
-    """
-    "ret" is a boolean that says whether the capture was successful or not
-    "frame" is just a variable that temporarily store the image data
-    "webcam.read()" is the function that takes the image
-    """
-    if not ret:                                       # if "ret" is false, no image was taken
-        print("Error: Could not capture image")
-        return None
-
-    filename = f"image_{image_number:04d}.png"        # creates a file for the captured image
-    filepath = os.path.join(OUTPUT_FOLDER, "raw", filename)  # specifies where to put image file
-    cv2.imwrite(filepath, frame)                      # sends the image data stored in variable "frame" to file in output/raw
-
-    print(f"Image saved: {filepath}")                 # notifies user that image was saved, and where it was saved
-    return frame
-
-def main():                                      # This is our main function where we will put all our commands
-    os.makedirs(OUTPUT_FOLDER, exist_ok=True)
-    os.makedirs(os.path.join(OUTPUT_FOLDER, "raw"), exist_ok=True)
-    os.makedirs(os.path.join(OUTPUT_FOLDER, "diagnostic"), exist_ok=True)
-    """
-    "exist_ok=True" input ensures this function only runs if the "output" file doesn't already exist
-    "os.makedirs" creates output folder for images with the name "output" with "raw" folder inside
-    """
+def RunTest(arduino):
     print("Starting up...")
     print("Camera initialising...")
 
-    webcam = initialise_camera(index=0)         # Starts camera
+    webcam = initialise_camera(index=0)
     if webcam is None:
-        return
+        return None, None, None, None, None
 
-    capture_image(webcam, 1)                    # Capture image
-    release_camera(webcam)                      # Turns off camera
+    laser_on(arduino)
+    time.sleep(2)
+    capture_image(webcam, 1)
+    release_camera(webcam)
+    time.sleep(3)
+    laser_off(arduino)
 
     # load test image
     image_path = os.path.join(OUTPUT_FOLDER, "raw", "image_0001.png")
@@ -63,7 +32,7 @@ def main():                                      # This is our main function whe
 
     if image is None:
         print("Error: Could not load image")
-        return
+        return None, None, None, None, None
 
     # find red pixels
     mask, red_pixels = find_red_pixels(image)
@@ -75,10 +44,85 @@ def main():                                      # This is our main function whe
     print(f"Centre line x: {centre_x}")
     print(f"Pixel offset: {offset}")
 
-    # create and save diagnostic image
-    diagnostic = create_diagnostic_image(image, mask, closest_pixel, offset, centre_x)
-    cv2.imwrite(os.path.join(OUTPUT_FOLDER, "diagnostic", "image_0001_diagnostic.png"), diagnostic)
-    print("Diagnostic image saved")
+    return offset, image, mask, closest_pixel, centre_x
 
-if __name__ == "__main__":  # This line just runs the code
+
+def main():
+    git
+    push
+    origin
+    main - -force
+    os.makedirs(OUTPUT_FOLDER, exist_ok=True)
+    os.makedirs(os.path.join(OUTPUT_FOLDER, "raw"), exist_ok=True)
+    os.makedirs(os.path.join(OUTPUT_FOLDER, "diagnostic"), exist_ok=True)
+    os.makedirs(os.path.join(OUTPUT_FOLDER, "calibration"), exist_ok=True)
+
+    # connect once at the start of the session
+    arduino = connect(PORT, BAUD)
+    if arduino is None:
+        print("Error: Could not connect to Arduino, exiting...")
+        return
+
+    common_ratio = None
+    mm_per_pixel = None
+
+    UserSelection = None
+    while UserSelection != 3:
+        print("\nSelect Option: ")
+        print("(1) Calibrate")
+        print("(2) Run Test")
+        print("(3) Exit")
+        UserSelection = int(input())
+
+        if UserSelection == 1:
+            offset, image, mask, closest_pixel, centre_x = RunTest(arduino)
+
+            if offset is None:
+                print("Error: Test failed, calibration aborted")
+                continue
+
+            # create and save calibration image
+            calibration = create_calibration_image(image, mask, closest_pixel, offset, centre_x)
+            cv2.imwrite(os.path.join(OUTPUT_FOLDER, "calibration", "image_0001_calibration.png"), calibration)
+            print("Calibration image saved")
+
+            # get calibration info from user
+            print("Enter Measured Values")
+            vertical_distance = float(input("Vertical Distance (mm): "))
+            horizontal_distance = float(input("Horizontal Distance (mm): "))
+
+            common_ratio = horizontal_distance / vertical_distance
+            mm_per_pixel = vertical_distance / offset
+            print("Calibration complete!")
+
+        if UserSelection == 2:
+            if common_ratio is None or mm_per_pixel is None:
+                print("Error: Please run calibration first (Option 1)")
+            else:
+                offset, image, mask, closest_pixel, centre_x = RunTest(arduino)
+
+                if offset is None:
+                    print("Error: Test failed")
+                    continue
+
+                # create and save diagnostic image
+                diagnostic = create_diagnostic_image(image, mask, closest_pixel, offset, centre_x)
+                cv2.imwrite(os.path.join(OUTPUT_FOLDER, "diagnostic", "image_0001_diagnostic.png"), diagnostic)
+                print("Diagnostic image saved")
+
+                # find horizontal distance in mm
+                horizontal_distance_pixel = offset * common_ratio
+                result = horizontal_distance_pixel * mm_per_pixel
+                print(f"Horizontal distance: {result:.2f} mm")
+
+                step_motor(arduino)
+
+        if UserSelection == 3:
+            print("Exiting...")
+
+    # disconnect once at the end of the session
+    disconnect(arduino)
+
+
+if __name__ == "__main__":
     main()

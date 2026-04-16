@@ -11,11 +11,11 @@ def find_red_pixels(image):
     i.e. we can detect red pixels regardless of brightness
     """
     # define red colour range in HSV
-    lower_red1 = np.array([0, 150, 150])            # values are (hue=0, saturation=155, brightness=150
-    upper_red1 = np.array([10, 255, 255])           # values are (hue=10, saturation=255, brightness=255
+    lower_red2 = np.array([150, 80, 180])  # higher sat floor since ring is more vivid
+    upper_red2 = np.array([180, 255, 220])  # cap brightness to exclude white core
 
-    lower_red2 = np.array([170, 150, 150])
-    upper_red2 = np.array([180, 255, 255])          # max values for each are (180, 255, 255)
+    lower_red1 = np.array([0, 80, 180])
+    upper_red1 = np.array([10, 255, 220])          # max values for each are (180, 255, 255)
     """
     Hue in HSV is defined using a scale of 0-180, 'Red' is defined from 0-10 and 170-180
     Therefore we need to define 'Red' for values with hues between 0-10 and 170-180
@@ -101,4 +101,28 @@ def create_diagnostic_image(image, mask, closest_pixel, offset, centre_x):
                     cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2)
 
     return diagnostic
+
+def create_calibration_image(image, mask, closest_pixel, offset, centre_x):
+    """
+    Creates a calibration image with the original image as background,
+    with diagnostic overlay drawn on top.
+    """
+    image_height, image_width = image.shape[:2]
+
+    # use original image as background instead of black
+    calibration = image.copy()
+
+    # draw green centre line
+    cv2.line(calibration, (centre_x, 0), (centre_x, image_height), (0, 255, 0), 2)
+
+    if closest_pixel is not None:
+        x, y = closest_pixel
+        # draw blue line showing offset distance
+        cv2.line(calibration, (centre_x, y), (x, y), (255, 0, 0), 2)
+        # draw offset text
+        cv2.putText(calibration, f"Offset: {offset}px", (10, 30),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2)
+
+    return calibration
+
 
